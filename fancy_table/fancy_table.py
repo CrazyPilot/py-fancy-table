@@ -27,7 +27,14 @@ class Section(TableRowBase):
 
         widths = self._table.widths
         result = list()
-        result.append(border('┠─' + '─┴─'.join(['─'*w for w in widths]) + '─┨'))
+
+        if prev is None:  # первая строка в таблице
+            # рисуем нижнюю часть шапки
+            result.append(border('┣━' + '━┷━'.join(['━' * w for w in widths]) + '━┫'))
+        elif type(prev) is Row:
+            # перед секцией была обычная строка
+            result.append(border('┠─' + '─┴─'.join(['─'*w for w in widths]) + '─┨'))
+
         result.append(border('┃ ') + self.name.center(sum(widths) + 3 * (len(widths) - 1)) + border(' ┃'))
         result.append(border('┠─' + '─┬─'.join(['─' * w for w in widths]) + '─┨'))
         return result
@@ -41,12 +48,17 @@ class Row(TableRowBase):
         self.row = row
         self._table = table
 
-    def to_string(self, prev=None, next=None, colors_enabled):
+    def to_string(self, prev, next, colors_enabled):
         def border(t):
             return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
 
         widths = self._table.widths
         result = list()
+
+        if prev is None:  # первая строка в таблице
+            # рисуем нижнюю часть шапки
+            result.append(result.append(border('┣━' + '━┿━'.join(['━' * w for w in widths]) + '━┫')))
+
         result.append(
             border('┃ ') +
             border(' │ ').join([td.center(widths[idx]) for idx, td in enumerate(self.row)]) +
@@ -92,15 +104,15 @@ class FancyTable:
         header = border('┃ ') + border(' │ ').join(header) + border(' ┃')
         result.append(header)
 
-        if type(self.rows[0]) == Row:
-            result.append(border('┣━' + '━┿━'.join(['━' * w for w in self.widths]) + '━┫'))
-        else:
-            result.append(border('┣━' + '━┷━'.join(['━' * w for w in self.widths]) + '━┫'))
+        # if type(self.rows[0]) == Row:
+        #     result.append(border('┣━' + '━┿━'.join(['━' * w for w in self.widths]) + '━┫'))
+        # else:
+        #     result.append(border('┣━' + '━┷━'.join(['━' * w for w in self.widths]) + '━┫'))
 
         for idx, row in enumerate(self.rows):
             result += row.to_string(
-                row[idx-1] if idx > 0 else None,
-                row[idx+1] if idx < len(self.rows)-1 else None,
+                self.rows[idx-1] if idx > 0 else None,
+                self.rows[idx+1] if idx < len(self.rows)-1 else None,
                 colors_enabled
             )
 
