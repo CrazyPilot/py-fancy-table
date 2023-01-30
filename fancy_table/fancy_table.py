@@ -9,7 +9,7 @@ def colorize(text, color, colors_enabled):
 
 
 class TableRowBase:
-    def to_string(self, prev, next, colors_enabled):
+    def to_string(self, prev_row, next_row, colors_enabled):
         raise NotImplementedError()
 
 
@@ -21,22 +21,34 @@ class Section(TableRowBase):
         self.name = name
         self._table = table
 
-    def to_string(self, prev, next, colors_enabled):
+    def to_string(self, prev_row, next_row, colors_enabled):
         def border(t):
             return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
 
         widths = self._table.widths
         result = list()
 
-        if prev is None:  # первая строка в таблице
+        if prev_row is None:  # первая строка в таблице
             # рисуем нижнюю часть шапки
             result.append(border('┣━' + '━┷━'.join(['━' * w for w in widths]) + '━┫'))
-        elif type(prev) is Row:
+        elif type(prev_row) is Row:
             # перед секцией была обычная строка
             result.append(border('┠─' + '─┴─'.join(['─'*w for w in widths]) + '─┨'))
+        elif type(prev_row) is Section:
+            pass
+        else:
+            raise NotImplementedError
 
         result.append(border('┃ ') + self.name.center(sum(widths) + 3 * (len(widths) - 1)) + border(' ┃'))
-        result.append(border('┠─' + '─┬─'.join(['─' * w for w in widths]) + '─┨'))
+
+        if next_row is None:  # это последняя строка
+            result.append(border('┗━' + '━━━'.join(['━' * w for w in widths]) + '━┛'))
+        elif type(next_row) is Row:
+            result.append(border('┠─' + '─┬─'.join(['─' * w for w in widths]) + '─┨'))
+        elif type(next_row) is Section:
+            result.append(border('┠─' + '───'.join(['─' * w for w in widths]) + '─┨'))
+        else:
+            raise NotImplementedError
         return result
 
 
@@ -48,33 +60,40 @@ class Row(TableRowBase):
         self.row = row
         self._table = table
 
-    def to_string(self, prev, next, colors_enabled):
+    def to_string(self, prev_row, next_row, colors_enabled):
         def border(t):
             return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
 
         widths = self._table.widths
         result = list()
 
-        if prev is None:  # первая строка в таблице
+        if prev_row is None:  # первая строка в таблице
             # рисуем нижнюю часть шапки
-            result.append(result.append(border('┣━' + '━┿━'.join(['━' * w for w in widths]) + '━┫')))
+            result.append(border('┣━' + '━┿━'.join(['━' * w for w in widths]) + '━┫'))
 
         result.append(
             border('┃ ') +
             border(' │ ').join([td.center(widths[idx]) for idx, td in enumerate(self.row)]) +
             border(' ┃')
         )
+
+        if next_row is None:  # это последняя строка
+            result.append(border('┗━' + '━┷━'.join(['━' * w for w in widths]) + '━┛'))
+
         return result
 
 
 class FancyTable:
-    columns = []
-    rows = []
-    widths = []
+    caption = None
+    columns: list = None
+    rows: list = None
+    widths: list = None
 
-    def __init__(self, columns):
+    def __init__(self, columns: list, caption=None):
+        self.caption = caption
         self.columns = columns
         self.widths = [len(i) for i in columns]
+        self.rows = []
 
     def __str__(self):
         return self.to_string()
@@ -96,18 +115,16 @@ class FancyTable:
 
         result = []
         total_width = sum(self.widths) + (len(self.widths) - 1) * 3 + 4
-        result.append(border(
-            '┏━' + '━┯━'.join(['━' * w for w in self.widths]) + '━┓'
-        ))
+        if self.caption:
+            result.append(border('┏' + '━'*(total_width-2) + '┓'))
+            result.append(border('┃ ') + self.caption.center(total_width - 4) + border(' ┃'))
+            result.append(border('┣━' + '━┯━'.join(['━' * w for w in self.widths]) + '━┫'))
+        else:
+            result.append(border('┏━' + '━┯━'.join(['━' * w for w in self.widths]) + '━┓'))
 
         header = [col.center(self.widths[idx]) for idx, col in enumerate(self.columns)]
         header = border('┃ ') + border(' │ ').join(header) + border(' ┃')
         result.append(header)
-
-        # if type(self.rows[0]) == Row:
-        #     result.append(border('┣━' + '━┿━'.join(['━' * w for w in self.widths]) + '━┫'))
-        # else:
-        #     result.append(border('┣━' + '━┷━'.join(['━' * w for w in self.widths]) + '━┫'))
 
         for idx, row in enumerate(self.rows):
             result += row.to_string(
@@ -116,5 +133,4 @@ class FancyTable:
                 colors_enabled
             )
 
-        result.append(border('┗━' + '━┷━'.join(['━' * w for w in self.widths]) + '━┛'))
         return '\n'.join(result)
