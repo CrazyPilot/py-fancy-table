@@ -1,0 +1,1 @@
+from .fancy_table import FancyTable
