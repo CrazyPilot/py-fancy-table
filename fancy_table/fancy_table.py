@@ -106,6 +106,10 @@ class FancyTable:
                 self.widths[idx] = len(field)
         self.rows.append(Row(row, self))
 
+    def add_rows(self, rows: list):
+        for row in rows:
+            self.add_row(row)
+
     def add_section(self, section_name):
         self.rows.append(Section(section_name, self))
 
