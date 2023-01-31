@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "fancy-table"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["Antonio <mr.antonsilin@gmail.com>"]
 readme = "README.md"
 packages = [{include = "fancy_table"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 colorama = "^0.4.6"
 
 
