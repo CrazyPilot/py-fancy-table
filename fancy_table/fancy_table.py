@@ -73,7 +73,7 @@ class Row(TableRowBase):
 
         result.append(
             border('┃ ') +
-            border(' │ ').join([td.center(widths[idx]) for idx, td in enumerate(self.row)]) +
+            border(' │ ').join([str(td).center(widths[idx]) for idx, td in enumerate(self.row)]) +
             border(' ┃')
         )
 
@@ -102,8 +102,8 @@ class FancyTable:
         assert len(row) == len(self.columns)
         # setting maximum widths for columns
         for idx, field in enumerate(row):
-            if self.widths[idx] < len(field):
-                self.widths[idx] = len(field)
+            if self.widths[idx] < len(str(field)):
+                self.widths[idx] = len(str(field))
         self.rows.append(Row(row, self))
 
     def add_rows(self, rows: list):
