@@ -2,7 +2,7 @@ from colorama import Fore
 
 
 def colorize(text, color, colors_enabled):
-    if colors_enabled:
+    if colors_enabled and color:
         return color + text + Fore.RESET
     else:
         return text
@@ -54,10 +54,12 @@ class Section(TableRowBase):
 
 class Row(TableRowBase):
     row: list = None
+    color: None
     _table: 'FancyTable' = None
 
-    def __init__(self, row, table):
+    def __init__(self, row, table, color=None):
         self.row = row
+        self.color = color
         self._table = table
 
     def to_string(self, prev_row, next_row, colors_enabled):
@@ -73,7 +75,7 @@ class Row(TableRowBase):
 
         result.append(
             border('┃ ') +
-            border(' │ ').join([str(td).center(widths[idx]) for idx, td in enumerate(self.row)]) +
+            border(' │ ').join([colorize(str(td).center(widths[idx]), self.color, colors_enabled) for idx, td in enumerate(self.row)]) +
             border(' ┃')
         )
 
@@ -98,13 +100,13 @@ class FancyTable:
     def __str__(self):
         return self.to_string()
 
-    def add_row(self, row: list):
+    def add_row(self, row: list, color=None):
         assert len(row) == len(self.columns)
         # setting maximum widths for columns
         for idx, field in enumerate(row):
             if self.widths[idx] < len(str(field)):
                 self.widths[idx] = len(str(field))
-        self.rows.append(Row(row, self))
+        self.rows.append(Row(row, self, color))
 
     def add_rows(self, rows: list):
         for row in rows:
