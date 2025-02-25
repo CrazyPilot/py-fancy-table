@@ -90,6 +90,7 @@ class FancyTable:
     columns: list = None
     rows: list = None
     widths: list = None
+    border_color = Fore.LIGHTBLACK_EX
 
     def __init__(self, columns: list, caption=None):
         self.caption = caption
@@ -117,7 +118,7 @@ class FancyTable:
 
     def to_string(self, colors_enabled=True):
         def border(t):
-            return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
+            return colorize(t, self.border_color, colors_enabled)
 
         result = []
         total_width = sum(self.widths) + (len(self.widths) - 1) * 3 + 4
