@@ -7,9 +7,12 @@ readme = "README.md"
 packages = [{include = "fancy_table"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"
 colorama = "^0.4.6"
 
+
+[tool.poetry.group.dev.dependencies]
+antonio-py-dynamic-version = {git = "https://bitbucket.org/asilin/antonio-py-dynamic-version.git"}
 
 [build-system]
 requires = ["poetry-core"]
