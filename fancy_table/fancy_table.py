@@ -1,6 +1,9 @@
 from colorama import Fore
 
 
+DEFAULT_BORDER_COLOR = Fore.LIGHTBLACK_EX
+
+
 def colorize(text, color, colors_enabled):
     if colors_enabled and color:
         return color + text + Fore.RESET
@@ -23,7 +26,7 @@ class Section(TableRowBase):
 
     def to_string(self, prev_row, next_row, colors_enabled):
         def border(t):
-            return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
+            return colorize(t, self._table.border_color if self._table else DEFAULT_BORDER_COLOR, colors_enabled)
 
         widths = self._table.widths
         result = list()
@@ -64,7 +67,7 @@ class Row(TableRowBase):
 
     def to_string(self, prev_row, next_row, colors_enabled):
         def border(t):
-            return colorize(t, Fore.LIGHTBLACK_EX, colors_enabled)
+            return colorize(t, self._table.border_color if self._table else DEFAULT_BORDER_COLOR, colors_enabled)
 
         widths = self._table.widths
         result = list()
@@ -90,7 +93,7 @@ class FancyTable:
     columns: list = None
     rows: list = None
     widths: list = None
-    border_color = Fore.LIGHTBLACK_EX
+    border_color = DEFAULT_BORDER_COLOR
 
     def __init__(self, columns: list, caption=None):
         self.caption = caption

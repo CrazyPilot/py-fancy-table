@@ -16,6 +16,7 @@ print(t)
 
 
 t2 = FancyTable(['Name', 'Age', 'Job Title', 'Comment'])
+t2.border_color = Fore.MAGENTA
 t2.add_row(['Alice', '25', 'Designer', 'Dog lover'])
 t2.add_row(['Bob', '35', 'Developer', 'Anime nerd'])
 t2.add_section('Singapore')
