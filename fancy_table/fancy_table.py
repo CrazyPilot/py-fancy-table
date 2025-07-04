@@ -1,7 +1,28 @@
 from colorama import Fore
+import re
 
 
 DEFAULT_BORDER_COLOR = Fore.LIGHTBLACK_EX
+
+
+def visible_len(text):
+    """Calculate the visible length of a string, ignoring ANSI escape sequences."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    return len(ansi_escape.sub('', str(text)))
+
+
+def center_text(text, width):
+    """Center text within given width, accounting for ANSI escape sequences."""
+    text_str = str(text)
+    visible_length = visible_len(text_str)
+    if visible_length >= width:
+        return text_str
+    
+    padding = width - visible_length
+    left_padding = padding // 2
+    right_padding = padding - left_padding
+    
+    return ' ' * left_padding + text_str + ' ' * right_padding
 
 
 def colorize(text, color, colors_enabled):
@@ -78,7 +99,7 @@ class Row(TableRowBase):
 
         result.append(
             border('┃ ') +
-            border(' │ ').join([colorize(str(td).center(widths[idx]), self.color, colors_enabled) for idx, td in enumerate(self.row)]) +
+            border(' │ ').join([colorize(center_text(td, widths[idx]), self.color, colors_enabled) for idx, td in enumerate(self.row)]) +
             border(' ┃')
         )
 
@@ -98,7 +119,7 @@ class FancyTable:
     def __init__(self, columns: list, caption=None):
         self.caption = caption
         self.columns = columns
-        self.widths = [len(i) for i in columns]
+        self.widths = [visible_len(i) for i in columns]
         self.rows = []
 
     def __str__(self):
@@ -108,8 +129,8 @@ class FancyTable:
         assert len(row) == len(self.columns)
         # setting maximum widths for columns
         for idx, field in enumerate(row):
-            if self.widths[idx] < len(str(field)):
-                self.widths[idx] = len(str(field))
+            if self.widths[idx] < visible_len(str(field)):
+                self.widths[idx] = visible_len(str(field))
         self.rows.append(Row(row, self, color))
 
     def add_rows(self, rows: list):
@@ -127,12 +148,12 @@ class FancyTable:
         total_width = sum(self.widths) + (len(self.widths) - 1) * 3 + 4
         if self.caption:
             result.append(border('┏' + '━'*(total_width-2) + '┓'))
-            result.append(border('┃ ') + self.caption.center(total_width - 4) + border(' ┃'))
+            result.append(border('┃ ') + center_text(self.caption, total_width - 4) + border(' ┃'))
             result.append(border('┣━' + '━┯━'.join(['━' * w for w in self.widths]) + '━┫'))
         else:
             result.append(border('┏━' + '━┯━'.join(['━' * w for w in self.widths]) + '━┓'))
 
-        header = [col.center(self.widths[idx]) for idx, col in enumerate(self.columns)]
+        header = [center_text(col, self.widths[idx]) for idx, col in enumerate(self.columns)]
         header = border('┃ ') + border(' │ ').join(header) + border(' ┃')
         result.append(header)
 
