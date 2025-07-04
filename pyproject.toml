@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fancy-table"
-version = "0.1.5"  # set by antonio-py-dynamic-version
+version = "0.1.6"  #
 description = ""
 authors = ["Antonio <mr.antonsilin@gmail.com>"]
 readme = "README.md"
