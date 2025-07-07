@@ -5,7 +5,6 @@ from fancy_table.fancy_table import visible_len, center_text
 
 
 class TestHelperFunctions(unittest.TestCase):
-    # Test cases for visible_len and center_text functions 3
     def test_visible_len(self):
         self.assertEqual(visible_len("Hello"), 5)
         self.assertEqual(visible_len(""), 0)
