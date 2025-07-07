@@ -163,5 +163,9 @@ class FancyTable:
                 self.rows[idx+1] if idx < len(self.rows)-1 else None,
                 colors_enabled
             )
+        
+        # Add bottom border for empty table
+        if not self.rows:
+            result.append(border('┗━' + '━┷━'.join(['━' * w for w in self.widths]) + '━┛'))
 
         return '\n'.join(result)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fancy-table"
-version = "0.1.6"  #
+version = "0.1.7"  # set by antonio-py-dynamic-version
 description = ""
 authors = ["Antonio <mr.antonsilin@gmail.com>"]
 readme = "README.md"
@@ -13,6 +13,12 @@ colorama = "^0.4.6"
 
 [tool.poetry.group.dev.dependencies]
 antonio-py-dynamic-version = {git = "https://bitbucket.org/asilin/antonio-py-dynamic-version.git"}
+pytest = "^7.4.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
 
 [build-system]
 requires = ["poetry-core"]
